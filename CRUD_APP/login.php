@@ -10,19 +10,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $stmt->execute();
 
   $stmt->store_result();
-  if ($stmt->num_rows > 0) {
-    $stmt->bind_result($id, $hashed_password);
-    $stmt->fetch();
-    if (password_verify($password, $hashed_password)) {
-      $_SESSION['user_id'] = $id;
-      header("Location: index.php");
-      exit();
+
+
+   if ($stmt->num_rows > 0) {
+        $stmt->bind_result($id, $hashed_password);
+        $stmt->fetch();
+        if (password_verify($password, $hashed_password)) {
+            $_SESSION['user_id'] = $id;
+            $_SESSION['login_message'] = "Welcome! You are now logged in.";
+            header("Location: index.php");
+            exit();
+        } else {
+            $error = "Invalid password.";
+        }
     } else {
-      $error = "Invalid password.";
+        $error = "User not found.";
     }
-  } else {
-    $error = "User not found.";
-  }
 }
 ?>
 <!DOCTYPE html>
@@ -43,6 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         required></div>
     <button type="submit" class="btn btn-primary">Login</button>
     <a href="register.php" class="btn btn-link">Register</a>
+     <a href="forgot_password.php" class="btn btn-link">Forgot Password?</a>
   </form>
 </body>
 

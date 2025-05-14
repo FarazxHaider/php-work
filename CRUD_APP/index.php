@@ -1,5 +1,7 @@
 <?php include 'config.php';
 session_start();
+
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -18,6 +20,16 @@ $result = $conn->query("SELECT * FROM users");
 </head>
 
 <body class="container mt-5">
+    <div class="d-flex justify-content-end p-3 bg-light">
+    <?php if (isset($_SESSION['user_id'])): ?>
+        <a href="logout.php" class="btn btn-danger me-2">Logout</a>
+    <?php else: ?>
+        <a href="login.php" class="btn btn-primary me-2">Login</a>
+        <a href="register.php" class="btn btn-success me-2">Register</a>
+        <a href="forgot_password.php" class="btn btn-warning">Forgot Password?</a>
+    <?php endif; ?>
+ </div>
+
     <h2>User Management</h2>
     <a href="create.php" class="btn btn-success mb-3">Add User</a>
     <table class="table table-bordered">
