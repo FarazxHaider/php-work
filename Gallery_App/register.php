@@ -1,40 +1,38 @@
 <?php
 include 'config.php';
-session_start();
+
+$error = '';
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $username = $_POST['username'];
-  $email    = $_POST['email'];
-  $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-  $sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-  
-  $stmt = $conn->prepare($sql);
-  $stmt->bind_param("sss", $username, $email, $password);
-  if ($stmt->execute()) {
-    $_SESSION['user_id'] = $stmt->insert_id;
-    $_SESSION['username'] = $username;
-    header("Location: index.php");
+  $username = $conn->real_escape_string($_POST['username']);
+  $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+  $exists = $conn->query("SELECT id FROM users WHERE username = '$username'");
+  if ($exists->num_rows > 0) {
+    $error = "Username already taken.";
   } else {
-    echo "Registration failed.";
+    $conn->query("INSERT INTO users (username, password) VALUES ('$username', '$password')");
+    header("Location: login.php");
+    exit();
   }
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
-</head>
-<body>
-  <!-- HTML Form --> 
-<form method="POST"> 
-<input type="text" name="username" required placeholder="Username"> 
-<input type="email" name="email" required placeholder="Email"> 
-<input type="password" name="password" required placeholder="Password"> 
-<button type="submit">Register</button> 
-</form>
-</body>
-</html>
- 
+<?php include 'includes/header.php'; ?>
 
+<div class="container mt-4">
+  <h2>Register</h2>
+  <?php if ($error): ?>
+    <div class="alert alert-danger"><?= $error ?></div>
+  <?php endif; ?>
+  <form method="POST">
+    <div class="mb-3"><input type="text" name="username" class="form-control"
+        placeholder="Username" required></div>
+    <div class="mb-3"><input type="password" name="password" class="form-control"
+        placeholder="Password" required></div>
+    <button class="btn btn-primary">Register</button>
+    <a href="login.php" class="btn btn-link">Login</a>
+  </form>
+</div>
+
+<?php include 'includes/footer.php'; ?>
